@@ -3,6 +3,7 @@ import AbstractProvider, {
   ParseArgument,
   ProviderOptions,
   SearchResult,
+  SearchArgument,
   RequestType,
 } from './provider';
 
@@ -80,5 +81,16 @@ export default class GeoApiFrProvider extends AbstractProvider<
       bounds: null,
       raw: r,
     }));
+  }
+
+  async search(options: SearchArgument): Promise<SearchResult<RawResult>[]> {
+    // GeoApiFr returns a 400 error when query length < 2 or query length > 200
+    if (options.query.length < 3) {
+      return [];
+    } else if (options.query.length > 200) {
+      options.query = options.query.substring(0, 200);
+    }
+
+    return super.search(options);
   }
 }
